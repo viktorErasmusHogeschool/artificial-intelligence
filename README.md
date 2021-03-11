@@ -1,8 +1,8 @@
-# Artificial-intelligence
+# Intelligent interfaces
 
 ## Purpose of this repo
 
-This repo will be used as main source code for the development of our project with regards to the module Intelligence interfaces, which
+This repo will be used as main source code for the development of our project with regards to the module Intelligent interfaces, which
 takes places within the context of our AI postgraduate program.
 
 ## Summary of the project
