@@ -9,12 +9,12 @@ class Card(pygame.sprite.Sprite):
     def __init__(self, x, y, text, color):
         super().__init__()
         # Surface of un-clicked object
-        self.original_image = pygame.Surface((200, 200), pygame.SRCALPHA)
-        pygame.draw.rect(self.original_image, color, pygame.Rect(0, 0, 200, 200))
+        self.original_image = pygame.Surface((200, 150), pygame.SRCALPHA)
+        pygame.draw.rect(self.original_image, color, pygame.Rect(0, 0, 200, 150))
         # Surface of clicked object
-        self.click_image = pygame.Surface((200, 200), pygame.SRCALPHA)
-        pygame.draw.rect(self.click_image, color, pygame.Rect(0, 0, 200, 200))
-        pygame.draw.rect(self.click_image, (0, 128, 0), pygame.Rect(0, 0, 200, 200), 10)
+        self.click_image = pygame.Surface((200, 150), pygame.SRCALPHA)
+        pygame.draw.rect(self.click_image, color, pygame.Rect(0, 0, 200, 150))
+        pygame.draw.rect(self.click_image, (0, 128, 0), pygame.Rect(0, 0, 200, 150), 10)
         # Define text
         self.image = self.original_image
         self.render_text(text)

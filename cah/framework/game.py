@@ -12,7 +12,6 @@ class Game:
         self.canvas = Canvas(width, height, "Cards Against Humanity")
         self.player = Player(self.net.initial_sample, self.canvas.screen)
         self.button = Button(self.canvas.width/2, self.canvas.height - 60)
-        self.others = 0
 
     def run(self):
 

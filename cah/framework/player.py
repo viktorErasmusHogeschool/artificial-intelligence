@@ -12,9 +12,9 @@ class Player:
 
     def create_group(self, initial_sample, window):
         _ = [Card((n + 1) * window.get_width() // (int(np.floor(self.number_of_cards/2)) + 1),
-                 800 - 500, " ", (128, 128, 128)) for n in range(int(np.floor(self.number_of_cards/2)))]
+                 window.get_height()/2, " ", (128, 128, 128)) for n in range(int(np.floor(self.number_of_cards/2)))]
         __ = [Card((n + 1) * window.get_width() // (int(np.ceil(self.number_of_cards/2)) + 1),
-                 800 - 250, " ", (128, 128, 128)) for n in range(int(np.ceil(self.number_of_cards/2)))]
+                 window.get_height()/2 + 200, " ", (128, 128, 128)) for n in range(int(np.ceil(self.number_of_cards/2)))]
         group = pygame.sprite.Group(_ + __)
         group.sprites()[0].clicked = True
         card_index = 0
