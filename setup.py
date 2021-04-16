@@ -7,7 +7,7 @@ import ast
 def get_version_from_init():
     """Obtain library version from main init."""
     init_file = os.path.join(
-        os.path.dirname(__file__), 'src', '__init__.py'
+        os.path.dirname(__file__), 'cah', '__init__.py'
     )
     with open(init_file) as fd:
         for line in fd:

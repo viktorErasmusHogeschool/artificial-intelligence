@@ -1,5 +1,5 @@
-from .game import Game
+from cah.framework import game
 
 if __name__ == "__main__":
-    g = Game(500, 500)
+    g = game.Game(1500, 800)
     g.run()
