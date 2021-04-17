@@ -1,28 +1,29 @@
 import socket
-
+import pickle
 
 class Network:
 
     def __init__(self):
+        # At the client-side, a socket is created in exactly the same way as at the server
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.host = "172.104.134.93" # For this to work on your machine this must be equal to the ipv4 address of the machine running the server
-                                    # You can find this address by typing ipconfig in CMD and copying the ipv4 address. Again this must be the servers
-                                    # ipv4 address. This feild will be the same for all your clients.
+        self.host = "172.104.134.93"
         self.port = 5555
         self.addr = (self.host, self.port)
-        self.id = self.connect()
+        # Now the difference exists at the client-side in a way that instead of listening to the socket,
+        # we need to connect to the one that is already opened by the server. To do so, we use the connect method:
+        self.initial_sample = self.connect()
 
     def connect(self):
+        # At the server-side, the accept method will open a connection with the previously connected client
         self.client.connect(self.addr)
-        return self.client.recv(2048).decode()
+        return pickle.loads(self.client.recv(2048))
 
     def send(self, data):
-        """
-        :param data: str
-        :return: str
-        """
         try:
+            # Send data to the server
+            # print("Sending: {}".format(self.client.send(str.encode(data))))
             self.client.send(str.encode(data))
+            # Retrieve data on the server
             reply = self.client.recv(2048).decode()
             return reply
         except socket.error as e:

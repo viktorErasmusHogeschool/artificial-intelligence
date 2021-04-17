@@ -1,5 +1,3 @@
-from . import framework
-from . import nlp
-from . import speech
+from .framework import *
 
 __version__ = "2021.1"
