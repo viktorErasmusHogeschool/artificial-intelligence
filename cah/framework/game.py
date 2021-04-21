@@ -9,12 +9,15 @@ class Game:
 
     def __init__(self, width, height):
         self.net = Network()
+        self.id = list(self.net.initiate.keys())[0]
         self.canvas = Canvas(width, height, "Cards Against Humanity")
-        self.player = Player(self.net.initial_sample, self.canvas.screen)
+        self.player = Player(list(self.net.initiate.values())[0], self.canvas.screen)
         self.button = Button(self.canvas.width/2, self.canvas.height - 60)
+        self.status = None
 
     def run(self):
 
+        print("You are Player {}! Best of luck!!".format(self.id))
         clock = pygame.time.Clock()
         all_sprites = self.player.group.copy()
         all_sprites.add(self.button)
@@ -38,7 +41,7 @@ class Game:
             self.submit(event_list)
 
             # Send Network Stuff
-            self.others = self.parse_data(self.send_data())
+            self.status = self.parse_data(self.send_data())
 
             # Update Canvas
             self.canvas.draw_background()
@@ -67,18 +70,16 @@ class Game:
         for event in event_list:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.button.rect.collidepoint(event.pos):
+                    # Set the player's choice
                     self.player.choose()
 
     def send_data(self):
-        data = " "
-        # Send the data of player to server
-        reply = self.net.send(data)
-        # !!! reply is the result of self.client.recv(2048).decode() !!!
+        data = self.player.choice
+        # Send the player's to server and retrieve response from the same server
+        reply = self.net.send({self.id: data}) if data is not None else self.net.send({self.id: "-1"})
         return reply
+
 
     @staticmethod
     def parse_data(data):
-        try:
-            return int(data)
-        except:
-            return None
+        return data
