@@ -17,7 +17,8 @@ class Card(pygame.sprite.Sprite):
         pygame.draw.rect(self.click_image, (0, 128, 0), pygame.Rect(0, 0, 200, 150), 10)
         # Define text
         self.image = self.original_image
-        self.render_text(text)
+        self.text = text
+        self.render_text()
         # Set additional attributes
         self.rect = self.image.get_rect(center=(x, y))
         self.clicked = False
@@ -46,9 +47,9 @@ class Card(pygame.sprite.Sprite):
             x = pos[0]  # Reset the x.
             y += word_height  # Start on new row.
 
-    def render_text(self, text):
-        Card.blit_text(self.image, text, (self.image.get_rect().left + 10, self.image.get_rect().top + 10), FONT)
-        Card.blit_text(self.click_image, text, (self.image.get_rect().left + 10, self.image.get_rect().top + 10), FONT)
+    def render_text(self):
+        Card.blit_text(self.image, self.text, (self.image.get_rect().left + 10, self.image.get_rect().top + 10), FONT)
+        Card.blit_text(self.click_image, self.text, (self.image.get_rect().left + 10, self.image.get_rect().top + 10), FONT)
 
 
 class Button(pygame.sprite.Sprite):
@@ -65,3 +66,9 @@ class Button(pygame.sprite.Sprite):
         # Set additional attributes
         self.rect = self.image.get_rect(center=(x, y))
         self.clicked = False
+
+    def update(self, event_list):
+        for event in event_list:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.rect.collidepoint(event.pos):
+                    self.clicked = not self.clicked

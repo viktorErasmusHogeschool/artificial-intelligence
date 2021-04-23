@@ -8,7 +8,7 @@ class Player:
     def __init__(self, initial_sample, window):
         self.number_of_cards = initial_sample.size
         self.group = self.create_group(initial_sample, window)
-        self.choice = " "
+        self.choice = None
 
     def create_group(self, initial_sample, window):
         _ = [Card((n + 1) * window.get_width() // (int(np.floor(self.number_of_cards/2)) + 1),
@@ -19,7 +19,8 @@ class Player:
         group.sprites()[0].clicked = True
         card_index = 0
         for card in group:
-            card.render_text(initial_sample[card_index])
+            card.text = initial_sample[card_index]
+            card.render_text()
             card_index += 1
         return group
 
