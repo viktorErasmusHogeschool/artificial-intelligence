@@ -79,7 +79,6 @@ class Game:
         reply = self.net.send({self.id: data}) if data is not None else self.net.send({self.id: "-1"})
         return reply
 
-
     @staticmethod
     def parse_data(data):
         return data
