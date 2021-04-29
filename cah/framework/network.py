@@ -19,13 +19,11 @@ class Network:
         return pickle.loads(self.client.recv(4096))
 
     def send(self, data):
-        try:
-            # Send data to the server
-            # self.client.send(str.encode(data))
-            self.client.send(pickle.dumps(data))
-            # Retrieve data on the server
-            #reply = self.client.recv(4096).decode()
-            reply = pickle.loads(self.client.recv(4096))
-            return reply
-        except socket.error as e:
-            return str(e)
+        # Send data to the server
+        self.client.send(pickle.dumps(data))
+        return pickle.loads(self.client.recv(4096))
+
+    def receive(self):
+        # Retrieve data on the server
+        pass
+

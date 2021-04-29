@@ -6,8 +6,12 @@ FONT_COLOR = pygame.Color('black')
 
 
 class Card(pygame.sprite.Sprite):
-    def __init__(self, x, y, text, color):
+
+    def __init__(self, x, y, text, color, black):
         super().__init__()
+        # Define white or black nature of cards
+        self.black = black
+        self.text_color = "white" if self.black else "black"
         # Surface of un-clicked object
         self.original_image = pygame.Surface((200, 150), pygame.SRCALPHA)
         pygame.draw.rect(self.original_image, color, pygame.Rect(0, 0, 200, 150))
@@ -26,18 +30,17 @@ class Card(pygame.sprite.Sprite):
     def update(self, event_list):
         for event in event_list:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.rect.collidepoint(event.pos):
+                if self.rect.collidepoint(event.pos) and not self.black:
                     self.clicked = not self.clicked
 
-    @staticmethod
-    def blit_text(surface, text, pos, font, color=pygame.Color('black')):
+    def blit_text(self, surface, text, pos, font):
         words = [word.split(' ') for word in text.splitlines()]  # 2D array where each row is a list of words.
         space = font.size(' ')[0]  # The width of a space.
         max_width, max_height = surface.get_size()
         x, y = pos
         for line in words:
             for word in line:
-                word_surface = font.render(word, 0, color)
+                word_surface = font.render(word, 0, pygame.Color(self.text_color))
                 word_width, word_height = word_surface.get_size()
                 if x + word_width >= max_width:
                     x = pos[0]  # Reset the x.
@@ -48,11 +51,12 @@ class Card(pygame.sprite.Sprite):
             y += word_height  # Start on new row.
 
     def render_text(self):
-        Card.blit_text(self.image, self.text, (self.image.get_rect().left + 10, self.image.get_rect().top + 10), FONT)
-        Card.blit_text(self.click_image, self.text, (self.image.get_rect().left + 10, self.image.get_rect().top + 10), FONT)
+        self.blit_text(self.image, self.text, (self.image.get_rect().left + 10, self.image.get_rect().top + 10), FONT)
+        self.blit_text(self.click_image, self.text, (self.image.get_rect().left + 10, self.image.get_rect().top + 10), FONT)
 
 
 class Button(pygame.sprite.Sprite):
+
     def __init__(self, x, y):
         super().__init__()
         # Surface of object
