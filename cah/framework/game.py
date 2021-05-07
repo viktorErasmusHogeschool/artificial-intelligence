@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 from cah.framework.network import Network
 from cah.framework.player import Player
 from cah.framework.canvas import Canvas
@@ -12,20 +13,26 @@ class Game:
         self.font = pygame.font.SysFont('Arial', 25)
         self.net = Network()
         self.id = list(self.net.initiate.keys())[0]
-        self.canvas = Canvas(width, height, "Cards Against Humanity")
-        white_cards, black_card = self.net.initiate[self.id][0], self.net.initiate[self.id][1]
-        self.player = Player(white_cards, black_card, self.canvas.screen)
+        self.canvas = Canvas(width, height, "Player {}".format(self.id))
+        self.white_cards, self.black_card = np.asarray(self.net.initiate[self.id][0]), self.net.initiate[self.id][1]
+        self.player = Player(self.white_cards, self.black_card, self.canvas.screen)
         self.button = Button(self.canvas.width/2, self.canvas.height - 60)
-        self.score = {}
+        self.all_sprites = None
+        self.score = {0: 0}
+        self.tsar = 0
+        self.black_card = None
         self.rounds = 1
         self.players_status = {}
+        self.voted = False
+        self.resume = False
 
     def run(self):
 
         print("You are Player {}! Best of luck!!".format(self.id))
         clock = pygame.time.Clock()
-        all_sprites = self.player.group.copy()
-        all_sprites.add(self.button)
+        # Initialize card deck
+        self.all_sprites = self.player.group.copy()
+        self.all_sprites.add(self.button)
         run = True
 
         while run:
@@ -39,16 +46,17 @@ class Game:
 
             # Check for clicks
             self.update(event_list)
-            all_sprites.draw(self.canvas.screen)
+            _ = list(self.players_status.values())
+            self.all_sprites.draw(self.canvas.screen)
 
             # Check for submissions
             self.submit(event_list)
 
             # Send & Receive data from server
-            self.players_status, self.score, tsar, black_card = self.parse_data(self.send_data())
+            self.parse_data(self.send_data())
 
             # Set the Tsar player
-            if self.id == tsar:
+            if self.id == self.tsar:
                 self.player.tsar = True
             else:
                 self.player.tsar = False
@@ -56,12 +64,9 @@ class Game:
             # Check the beginning of a new round
             if sum(list(self.score.values())) == self.rounds:
                 self.rounds += 1
-                print("We're moving towards round {} with Player {} as new tsar !".format(self.rounds, tsar))
+                print("We're moving towards round {} with Player {} as new tsar !".format(self.rounds, self.tsar))
                 # Unlock player in beginning of new round, but be careful to reset its choice to None after sending
                 self.player.locked = False
-
-            # Update game's black card
-            self.player.redraw_card(-1, black_card[0])
 
             # Draw current scoring
             self.print_scoring()
@@ -94,7 +99,7 @@ class Game:
                     # Set the player's choice
                     self.player.choose()
                     # Send & Receive data from server
-                    self.status = self.parse_data(self.send_data())
+                    self.parse_data(self.send_data())
                     # Once submitted, lock player
                     self.player.locked = True
 
@@ -104,6 +109,8 @@ class Game:
         idx = 1
         for player in list(self.players_status.keys()):
             _ = "Waiting" if self.players_status[player] == 0 else "Locked!"
+            if player == self.tsar:
+                _ = "Tsar"
             self.canvas.screen.blit(self.font.render("Player {}".format(player), True, (0, 0, 0)), (delta * idx, 30))
             self.canvas.screen.blit(self.font.render(_, True, (0, 0, 0)), (delta * idx, 80))
             self.canvas.screen.blit(self.font.render(str(self.score[player]), True, (0, 0, 0)), (delta * idx + 40, 130))
@@ -112,14 +119,46 @@ class Game:
     def send_data(self):
         # Retrieve player's choice
         data = self.player.choice
+        _ = list(self.players_status.values())
+
         # Send the player's choice to server if he/she/it has not yet played, otherwise send -1
         if data is not None and not self.player.locked and not self.player.tsar:
-            # Send player's choice
+            print("Sending {}".format(data))
             self.player.choice = None
+            return self.net.send({self.id: data})
+        elif self.voted and data is not None:
+            self.player.choice = None
+            #self.voted = False
+            self.resume = True
             return self.net.send({self.id: data})
         else:
             return self.net.send({self.id: "-1"})
 
     def parse_data(self, data):
-        #Status Score Tsar Black_Card
-        return data[0], data[1], data[2], data[3]
+        if len(data) == 5:
+            # Status Score Tsar Black_Card
+            self.players_status, self.score, self.tsar, self.white_cards, self.black_card = data[0], data[1], data[2], data[3], data[4]
+
+            # If player is tsar
+            if len(self.white_cards) == len(list(self.players_status.values())) - 1:
+                if not self.voted:
+                    print("Got the following votes:", self.white_cards)
+                    self.player.group = Player.create_group(np.asarray(self.white_cards), self.black_card, self.canvas.screen)
+                    self.all_sprites = self.player.group.copy()
+                    self.all_sprites.add(self.button)
+                    self.voted = True
+                    self.player.choice = None
+            else:
+                self.voted = False
+                if self.resume:
+                    print("Resuming the game after vote")
+                    self.player.group = Player.create_group(np.asarray(self.white_cards), self.black_card, self.canvas.screen)
+                    self.all_sprites = self.player.group.copy()
+                    self.all_sprites.add(self.button)
+                    self.resume = False
+                    self.player.choice = None
+                # Redraw white cards
+                for i in range(len(self.white_cards)):
+                    self.player.redraw_card(i, self.white_cards[i], "white")
+            # Update game's black card
+            self.player.redraw_card(-1, self.black_card[0], "black")
