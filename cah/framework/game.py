@@ -25,6 +25,9 @@ class Game:
         self.players_status = {}
         self.voted = False
         self.resume = False
+        self.choices = None
+        self.final_result = None
+        self.previous_winner = None
 
     def run(self):
 
@@ -64,6 +67,12 @@ class Game:
             # Check the beginning of a new round
             if sum(list(self.score.values())) == self.rounds:
                 self.rounds += 1
+                black_card = self.final_result["black_card"][0]
+                if "_" in black_card:
+                    print("The winning phrase is: {}".format(black_card.replace('_', self.final_result[self.tsar])))
+                else:
+                    print("The winning phrase is: {} {}".format(black_card, self.final_result[self.tsar]))
+
                 print("We're moving towards round {} with Player {} as new tsar !".format(self.rounds, self.tsar))
                 # Unlock player in beginning of new round, but be careful to reset its choice to None after sending
                 self.player.locked = False
@@ -135,9 +144,15 @@ class Game:
             return self.net.send({self.id: "-1"})
 
     def parse_data(self, data):
-        if len(data) == 5:
+        if len(data) == 6:
             # Status Score Tsar Black_Card
-            self.players_status, self.score, self.tsar, self.white_cards, self.black_card = data[0], data[1], data[2], data[3], data[4]
+            self.players_status, self.score, self.tsar, self.white_cards, self.black_card, self.choices = data[0], data[1], data[2], data[3], data[4], data[5]
+
+            _ = self.choices.copy()
+            self.choices.pop(self.tsar)
+            if "-1" not in list(self.choices.values()):
+                self.final_result = _
+                self.final_result["black_card"] = self.black_card
 
             # If player is tsar
             if len(self.white_cards) == len(list(self.players_status.values())) - 1:
