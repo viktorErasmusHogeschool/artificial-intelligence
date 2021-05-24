@@ -1,9 +1,9 @@
 import pygame
 import numpy as np
-from cah.framework.network import Network
-from cah.framework.player import Player
-from cah.framework.canvas import Canvas
-from cah.framework.sprite import Button
+from . import Network
+from . import Player
+from . import Canvas
+from . import Button
 from _thread import *
 
 

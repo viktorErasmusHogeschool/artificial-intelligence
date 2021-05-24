@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-from cah.framework.sprite import Card
+from . import Card
 
 
 class Player:
