@@ -5,6 +5,9 @@ from . import Player
 from . import Canvas
 from . import Button
 from _thread import *
+import sys
+sys.path.append("../")
+from speech.speech_synthesis import say
 
 
 class Game:
@@ -55,6 +58,8 @@ class Game:
             # Check for submissions
             self.submit(event_list)
 
+            choices, bc = self.choices, self.black_card
+
             # Send & Receive data from server
             self.parse_data(self.send_data())
 
@@ -66,13 +71,13 @@ class Game:
 
             # Check the beginning of a new round
             if sum(list(self.score.values())) == self.rounds:
+                # Update round number
                 self.rounds += 1
-                black_card = self.final_result["black_card"][0]
-                if "_" in black_card:
-                    print("The winning phrase is: {}".format(black_card.replace('_', self.final_result[self.tsar])))
-                else:
-                    print("The winning phrase is: {} {}".format(black_card, self.final_result[self.tsar]))
-
+                # Fetch winning phrase
+                win = self.winning_phrase(choices, bc[0])
+                # Say winning phrase out loud
+                say(win)
+                # Print winning phrase in terminal and unlock player
                 print("We're moving towards round {} with Player {} as new tsar !".format(self.rounds, self.tsar))
                 # Unlock player in beginning of new round, but be careful to reset its choice to None after sending
                 self.player.locked = False
@@ -86,6 +91,14 @@ class Game:
 
         pygame.quit()
         exit()
+
+    def winning_phrase(self, choices, black_card):
+        if "_" in black_card:
+            win = black_card.replace('_', choices[self.tsar])
+        else:
+            win = black_card + choices[self.tsar]
+        print("The winning phrase is: {}".format(win))
+        return win
 
     def update(self, event_list):
         # Check if the card was clicked
@@ -129,7 +142,6 @@ class Game:
         # Retrieve player's choice
         data = self.player.choice
         _ = list(self.players_status.values())
-
         # Send the player's choice to server if he/she/it has not yet played, otherwise send -1
         if data is not None and not self.player.locked and not self.player.tsar:
             print("Sending {}".format(data))
@@ -137,7 +149,6 @@ class Game:
             return self.net.send({self.id: data})
         elif self.voted and data is not None:
             self.player.choice = None
-            #self.voted = False
             self.resume = True
             return self.net.send({self.id: data})
         else:
@@ -148,16 +159,10 @@ class Game:
             # Status Score Tsar Black_Card
             self.players_status, self.score, self.tsar, self.white_cards, self.black_card, self.choices = data[0], data[1], data[2], data[3], data[4], data[5]
 
-            _ = self.choices.copy()
-            self.choices.pop(self.tsar)
-            if "-1" not in list(self.choices.values()):
-                self.final_result = _
-                self.final_result["black_card"] = self.black_card
-
             # If player is tsar
             if len(self.white_cards) == len(list(self.players_status.values())) - 1:
                 if not self.voted:
-                    print("Got the following votes:", self.white_cards)
+                    print("Received the following votes:", self.white_cards)
                     self.player.group = Player.create_group(np.asarray(self.white_cards), self.black_card, self.canvas.screen)
                     self.all_sprites = self.player.group.copy()
                     self.all_sprites.add(self.button)
