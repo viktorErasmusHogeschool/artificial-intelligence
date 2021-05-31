@@ -4,6 +4,9 @@ import os
 import ast
 
 
+#  Use following command in Project path: python3 setup.py install --user
+# Then use "from package import Class" in code scripts to import relative code
+
 def get_version_from_init():
     """Obtain library version from main init."""
     init_file = os.path.join(
@@ -35,6 +38,8 @@ setup(
     install_requires=[
         'pygame',
         'pandas',
+        'numpy',
+        'pickle'
     ],
     package_data={'cah': []},
 )

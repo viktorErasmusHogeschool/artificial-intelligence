@@ -71,6 +71,8 @@ class Game:
 
             # Check the beginning of a new round
             if sum(list(self.score.values())) == self.rounds:
+                # Announce end of round
+                say("Attention please, here is the winning sentence by player {}".format(self.tsar))
                 # Update round number
                 self.rounds += 1
                 # Fetch winning phrase
@@ -78,7 +80,7 @@ class Game:
                 # Say winning phrase out loud
                 say(win)
                 # Print winning phrase in terminal and unlock player
-                print("We're moving towards round {} with Player {} as new tsar !".format(self.rounds, self.tsar))
+                say("We're now moving towards round {} with Player {} as new tsar !".format(self.rounds, self.tsar))
                 # Unlock player in beginning of new round, but be careful to reset its choice to None after sending
                 self.player.locked = False
 
