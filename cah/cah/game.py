@@ -8,6 +8,7 @@ from _thread import *
 import sys
 sys.path.append("../")
 from speech.speech_synthesis import say
+#from gans.image_synthesis import gen_image
 
 
 class Game:
@@ -79,6 +80,9 @@ class Game:
                 win = self.winning_phrase(choices, bc[0])
                 # Say winning phrase out loud
                 say(win)
+                #Check if their is a GAN associated to the winning phrase
+                #If so show generated image
+                #gen_image(choices[self.tsar])
                 # Print winning phrase in terminal and unlock player
                 say("We're now moving towards round {} with Player {} as new tsar !".format(self.rounds, self.tsar))
                 # Unlock player in beginning of new round, but be careful to reset its choice to None after sending
