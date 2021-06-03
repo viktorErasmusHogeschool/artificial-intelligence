@@ -17,10 +17,10 @@ class Player:
     def create_group(white_cards, black_card, window):
         number_of_cards = white_cards.size
         _ = [Card((n + 1) * window.get_width() // (int(np.floor(number_of_cards/2)) + 1),
-                 window.get_height()/2, " ", (220, 220, 220), False) for n in range(int(np.floor(number_of_cards/2)))]
+                 window.get_height()/2 + 30, " ", (220, 220, 220), False) for n in range(int(np.floor(number_of_cards/2)))]
         __ = [Card((n + 1) * window.get_width() // (int(np.ceil(number_of_cards/2)) + 1),
                  window.get_height()/2 + 200, " ", (220, 220, 220), False) for n in range(int(np.ceil(number_of_cards/2)))]
-        black_card_ = Card(1/2 * window.get_width(), 1/3 * window.get_height() - 50, black_card[0], (0, 0, 0), True)
+        black_card_ = Card(1/2 * window.get_width(), 1/3 * window.get_height() - 30, black_card[0], (0, 0, 0), True)
         black_card_.render_text()
         group = pygame.sprite.Group(_ + __)
         group.sprites()[0].clicked = True
@@ -36,6 +36,9 @@ class Player:
         for card in self.group:
             if card.clicked:
                 self.choice = card.text
+        if self.choice is None:
+            _ = self.group.sprites()[np.random.randint(self.number_of_cards)]
+            self.choice = _.text
 
     def redraw_card(self, card_id, text, type_):
         card = self.group.sprites()[card_id]

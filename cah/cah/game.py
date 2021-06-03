@@ -30,8 +30,7 @@ class Game:
         self.voted = False
         self.resume = False
         self.choices = None
-        self.final_result = None
-        self.previous_winner = None
+        self.image = None
 
     def run(self):
 
@@ -82,13 +81,12 @@ class Game:
                 say(win)
                 # Check if their is a GAN associated to the winning phrase
                 gen_image(choices[self.tsar])
-                # Display image if a model was found
                 try:
                     image = pygame.image.load(r'gan.jpg')
-                    image = pygame.transform.scale(image, (200, 200))
-                    self.canvas.screen.blit(image, (250, 250))
+                    image = pygame.transform.scale(image, (180, 180))
+                    self.image = image
                 except:
-                    print("Could not find image !")
+                    print("Could not load image !")
                 # Print winning phrase in terminal and unlock player
                 say("We're now moving towards round {} with Player {} as new tsar !".format(self.rounds, self.tsar))
                 # Unlock player in beginning of new round, but be careful to reset its choice to None after sending
@@ -141,6 +139,7 @@ class Game:
         margin = 50
         delta = (self.canvas.screen.get_width() - margin) / (len(self.players_status) + 1)
         idx = 1
+        # Print header of screen
         for player in list(self.players_status.keys()):
             _ = "Waiting" if self.players_status[player] == 0 else "Locked!"
             if player == self.tsar:
@@ -149,6 +148,12 @@ class Game:
             self.canvas.screen.blit(self.font.render(_, True, (0, 0, 0)), (delta * idx, 50))
             self.canvas.screen.blit(self.font.render(str(self.score[player]), True, (0, 0, 0)), (delta * idx + 40, 90))
             idx += 1
+            # Display picture as of 2nd round
+            if self.rounds >= 2:
+                try:
+                    self.canvas.screen.blit(self.image, (650, 120))
+                except:
+                    print("Could not display image !")
 
     def send_data(self):
         # Retrieve player's choice

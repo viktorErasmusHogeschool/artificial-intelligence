@@ -4,7 +4,6 @@ import torch.utils.data
 import torchvision.utils as vutils
 from torchvision.utils import save_image
 import pandas as pd
-import numpy as np
 from . import Generator
 
 
