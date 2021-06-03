@@ -8,7 +8,7 @@ from _thread import *
 import sys
 sys.path.append("../")
 from speech.speech_synthesis import say
-#from gans.image_synthesis import gen_image
+from gans.image_synthesis import gen_image
 
 
 class Game:
@@ -80,9 +80,15 @@ class Game:
                 win = self.winning_phrase(choices, bc[0])
                 # Say winning phrase out loud
                 say(win)
-                #Check if their is a GAN associated to the winning phrase
-                #If so show generated image
-                #gen_image(choices[self.tsar])
+                # Check if their is a GAN associated to the winning phrase
+                gen_image(choices[self.tsar])
+                # Display image if a model was found
+                try:
+                    image = pygame.image.load(r'gan.jpg')
+                    image = pygame.transform.scale(image, (200, 200))
+                    self.canvas.screen.blit(image, (250, 250))
+                except:
+                    print("Could not find image !")
                 # Print winning phrase in terminal and unlock player
                 say("We're now moving towards round {} with Player {} as new tsar !".format(self.rounds, self.tsar))
                 # Unlock player in beginning of new round, but be careful to reset its choice to None after sending
@@ -139,9 +145,9 @@ class Game:
             _ = "Waiting" if self.players_status[player] == 0 else "Locked!"
             if player == self.tsar:
                 _ = "Tsar"
-            self.canvas.screen.blit(self.font.render("Player {}".format(player), True, (0, 0, 0)), (delta * idx, 30))
-            self.canvas.screen.blit(self.font.render(_, True, (0, 0, 0)), (delta * idx, 80))
-            self.canvas.screen.blit(self.font.render(str(self.score[player]), True, (0, 0, 0)), (delta * idx + 40, 130))
+            self.canvas.screen.blit(self.font.render("Player {}".format(player), True, (0, 0, 0)), (delta * idx, 10))
+            self.canvas.screen.blit(self.font.render(_, True, (0, 0, 0)), (delta * idx, 50))
+            self.canvas.screen.blit(self.font.render(str(self.score[player]), True, (0, 0, 0)), (delta * idx + 40, 90))
             idx += 1
 
     def send_data(self):

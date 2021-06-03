@@ -39,6 +39,7 @@ setup(
         'pygame',
         'pandas',
         'numpy',
+        'torch'
     ],
     package_data={'cah': []},
 )

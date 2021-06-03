@@ -1,7 +1,7 @@
 import pygame
 pygame.font.init()
 
-FONT = pygame.font.SysFont('Arial', 20)
+FONT = pygame.font.SysFont("comicsansms", 20)
 FONT_COLOR = pygame.Color('black')
 
 
