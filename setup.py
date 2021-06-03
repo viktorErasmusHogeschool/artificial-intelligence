@@ -39,7 +39,6 @@ setup(
         'pygame',
         'pandas',
         'numpy',
-        'pickle'
     ],
     package_data={'cah': []},
 )
