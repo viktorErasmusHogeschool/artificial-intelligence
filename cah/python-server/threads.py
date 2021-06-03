@@ -1,10 +1,6 @@
-import pandas as pd
 import numpy as np
 import pickle
 
-def threaded_artificial_player(ai_player):
-    while True:
-        print("I am an AI player")
 
 def threaded_game_(game):
     while True:
@@ -12,6 +8,7 @@ def threaded_game_(game):
             game.check_round()
         else:
             pass
+
 
 def threaded_client(conn, player_id, game):
     # Send initial sample to player
@@ -25,8 +22,6 @@ def threaded_client(conn, player_id, game):
             else:
                 game.update_choices(data)
                 reply = [game.players_status(), game.update_score(), game.tsar, game.cards[player_id], game.black_card, game.choices]
-                #print("Received: {}".format(data))
-                #print("Sending: ".format(reply))
             
             conn.sendall(pickle.dumps(reply))
         except:
