@@ -26,6 +26,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+./cah/win.mp3
+./cah/gan.jpg
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
