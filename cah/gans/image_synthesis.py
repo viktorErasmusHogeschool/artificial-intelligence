@@ -9,7 +9,7 @@ from . import Generator
 
 def gen_image(text: str) -> None:
     # check if phrase has a model attached to it
-    df = pd.read_json("./data/cah-cards-with-models.json")
+    df = pd.read_json("./data/cah-cards-full.json")
     phrase_row = df[df['text'] == text]
     PATH = phrase_row['path_to_model'].values[0]
 
