@@ -31,6 +31,8 @@ class Game:
         self.resume = False
         self.choices = None
         self.image = None
+        self.table = {}
+        self.show_img = False
 
     def run(self):
 
@@ -58,8 +60,6 @@ class Game:
             # Check for submissions
             self.submit(event_list)
 
-            choices, bc = self.choices, self.black_card
-
             # Send & Receive data from server
             self.parse_data(self.send_data())
 
@@ -69,28 +69,9 @@ class Game:
             else:
                 self.player.tsar = False
 
-            # Check the beginning of a new round
-            if sum(list(self.score.values())) == self.rounds:
-                # Announce end of round
-                say("Attention please, here is the winning sentence by player {}".format(self.tsar))
-                # Update round number
-                self.rounds += 1
-                # Fetch winning phrase
-                win = self.winning_phrase(choices, bc[0])
-                # Say winning phrase out loud
-                say(win)
-                # Check if their is a GAN associated to the winning phrase
-                gen_image(choices[self.tsar])
-                try:
-                    image = pygame.image.load(r'gan.jpg')
-                    image = pygame.transform.scale(image, (180, 180))
-                    self.image = image
-                except:
-                    print("Could not load image !")
-                # Print winning phrase in terminal and unlock player
-                say("We're now moving towards round {} with Player {} as new tsar !".format(self.rounds, self.tsar))
-                # Unlock player in beginning of new round, but be careful to reset its choice to None after sending
-                self.player.locked = False
+            # If everyone has voted -> Go to next round
+            if "-1" not in self.choices.values():
+                self.next_round()
 
             # Draw current scoring
             self.print_scoring()
@@ -102,11 +83,46 @@ class Game:
         pygame.quit()
         exit()
 
-    def winning_phrase(self, choices, black_card):
+    def next_round(self):
+        # print("Storing result of previous round")
+        self.table[self.rounds - 1] = [self.choices, self.black_card]
+        # Announce to network that we are ready to move to next round
+        self.net.send("ok")
+        # Fetch choices and black card of entire round
+        _ = self.table[self.rounds - 1]
+        choices, bc = _[0], _[1]
+        print("Round {} has ended! Black Card was: {} White cards were {}".format(self.rounds, bc[0], choices))
+        # Infer the winner of the round by looking at the votes
+        choices_ = choices.copy()
+        choices_.pop(self.tsar)
+        winner = list(choices_.keys())[np.where(np.asarray(list(choices_.values())) == choices[self.tsar])[0][0]]
+        # Announce end of round
+        say("Attention please, here is the winning sentence by player {}".format(winner))
+        # Update round number
+        self.rounds += 1
+        # Fetch winning phrase
+        win = Game.winning_phrase(choices, bc[0], winner)
+        # Say winning phrase out loud
+        say(win)
+        # Check if their is a GAN associated to the winning phrase
+        self.show_img = gen_image(choices[self.tsar])
+        try:
+            image = pygame.image.load(r'gan.jpg')
+            image = pygame.transform.scale(image, (180, 180))
+            self.image = image
+        except:
+            print("Could not load image !")
+        # Print winning phrase in terminal and unlock player
+        say("We're now moving towards round {} with Player {} as new tsar !".format(self.rounds, winner))
+        # Unlock player in beginning of new round, but be careful to reset its choice to None after sending
+        self.player.locked = False
+
+    @staticmethod
+    def winning_phrase(choices, black_card, winner):
         if "_" in black_card:
-            win = black_card.replace('_', choices[self.tsar])
+            win = black_card.replace('_', choices[winner][:-1])
         else:
-            win = black_card + choices[self.tsar]
+            win = black_card + choices[winner]
         print("The winning phrase is: {}".format(win))
         return win
 
@@ -149,7 +165,7 @@ class Game:
             self.canvas.screen.blit(self.font.render(str(self.score[player]), True, (0, 0, 0)), (delta * idx + 40, 90))
             idx += 1
             # Display picture as of 2nd round
-            if self.rounds >= 2:
+            if self.show_img:
                 try:
                     self.canvas.screen.blit(self.image, (650, 120))
                 except:
@@ -173,7 +189,7 @@ class Game:
 
     def parse_data(self, data):
         if len(data) == 6:
-            # Status Score Tsar Black_Card
+            # Status-Score-Tsar-Black_Card-choices
             self.players_status, self.score, self.tsar, self.white_cards, self.black_card, self.choices = data[0], data[1], data[2], data[3], data[4], data[5]
 
             # If player is tsar

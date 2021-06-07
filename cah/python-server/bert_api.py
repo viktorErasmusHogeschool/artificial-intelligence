@@ -1,3 +1,4 @@
+# Model definition
 import os
 import pandas as pd
 import requests
@@ -7,7 +8,11 @@ from transformers import *
 from transformers import BertTokenizer
 from tqdm.notebook import tqdm
 import nltk
+#nltk.download('punkt')
 from nltk.tokenize import sent_tokenize
+
+### Docker command
+# sudo docker run -p 8501:8501   --mount type=bind,source=/home/ubuntu/colbert,target=/models/colbert   -e MODEL_NAME=colbert -t tensorflow/serving &
 
 class colbert:
 
@@ -18,6 +23,7 @@ class colbert:
         self.sentence = sentence
 
     def predict(self):
+
         def return_id(str1, str2, truncation_strategy, length):
             inputs = tokenizer.encode_plus(str1, str2,
                 add_special_tokens=True,
@@ -43,12 +49,11 @@ class colbert:
             for _, row in tqdm(df[columns].iterrows()):
                 i = 0
                 
+                # sent
                 sentences = sent_tokenize(row.text)
                 for xx in range(self.MAX_SENTENCES):
                     s = sentences[xx] if xx<len(sentences) else ''
-                    ids_q, masks_q, segments_q = return_id(s, None, 
-                                                        'longest_first', 
-                                                        self.MAX_SENTENCE_LENGTH)
+                    ids_q, masks_q, segments_q = return_id(s, None, 'longest_first', self.MAX_SENTENCE_LENGTH)
                     model_input[i].append(ids_q)
                     i+=1
                     model_input[i].append(masks_q)
@@ -56,10 +61,8 @@ class colbert:
                     model_input[i].append(segments_q)
                     i+=1
                 
-                ids_q, masks_q, segments_q = return_id(row.text, None, 
-                                                    'longest_first', 
-                                                    self.MAX_LENGTH)
-                            
+                # full row
+                ids_q, masks_q, segments_q = return_id(row.text, None, 'longest_first', self.MAX_LENGTH)
                 model_input[i].append(ids_q)
                 i+=1
                 model_input[i].append(masks_q)
@@ -67,9 +70,9 @@ class colbert:
                 model_input[i].append(segments_q)
             
                 for xx in range((self.MAX_SENTENCES*3)+3):
-                    model_input[xx] = np.asarray(model_input[xx], 
-                                                dtype=np.int32)
+                    model_input[xx] = np.asarray(model_input[xx], dtype=np.int32)
                     
+                print(model_input[0].shape)
                 return model_input
 
         MODEL_TYPE = 'bert-base-uncased'
@@ -77,9 +80,8 @@ class colbert:
 
         sentence = [{'text':self.sentence}]
         sentence = pd.DataFrame(sentence)
-        sentence_input = compute_input_arrays(sentence, 
-                                            ['text'], 
-                                            tokenizer)
+        sentence_input = compute_input_arrays(sentence, ['text'], tokenizer)
+
 
         data=json.dumps({"signature_name":"serving_default",
 
@@ -115,3 +117,6 @@ class colbert:
 
         return result
 
+#model = colbert("During sex, I like to think about becoming a blueberry")
+#result = model.predict()
+#print(result)

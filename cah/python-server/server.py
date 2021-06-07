@@ -1,8 +1,12 @@
 import socket
+import pandas as pd
+import numpy as np
+import pickle
 from _thread import *
+import sys
+from ai_player import AIPlayer
 from game import Game
 from threads import *
-from .threads import threaded_game_, threaded_client
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,9 +28,7 @@ print("Waiting for a connection")
 # Specify the initial parameters
 num_cards = 6
 player_id = 0
-
 game = Game(num_cards)
-# Keep track of the game status
 start_new_thread(threaded_game_, (game,))
 
 while True:

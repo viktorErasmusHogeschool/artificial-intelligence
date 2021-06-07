@@ -16,13 +16,20 @@ class Game():
         self.checkpoint = True
         self.ai_player = AIPlayer(num_cards)
         self.choices[0] = "-1"
-        #df = pd.read_json("./cah-cards-full.json").set_index("id")
-        df = pd.read_json("./cah-cards-with-models.json")
+        df = pd.read_json("./cah-cards-full.json").set_index("id")
+        #df = pd.read_json("./cah-cards-with-models.json")
         self.white_cards = df.query("cardType == 'A'")
         self.black_cards = df.query("cardType == 'Q'")
         self.black_card = self.pick_card("black")
         self.cards = {0: [self.pick_card("white")[0] for i in range(num_cards)]}
         self.copy_ = None
+        self.checkpoints = self.reset_checkpoints()
+
+    def reset_checkpoints(self):
+        _ = {}
+        for player in list(self.score.keys()):
+            _[player] = 0
+        return _
 
     def initialize_cards(self):
         white_sample = self.white_cards.sample(self.num_cards)
@@ -88,9 +95,11 @@ class Game():
                 winner = self.wait_for_human_vote(copy)
                 # If human tsar has made a decision
                 if winner is not None:
-                    print("Player {} has won the round !".format(winner))
+                    # print("Player {} has won the round !".format(winner))
                     self.cards[self.tsar] = self.copy_
-                    self.configure_new_round(winner)
+                    # Wait until every player gets the choices
+                    if sum(list(self.checkpoints.values())) == len(list(self.score.keys()))-1:
+                        self.configure_new_round(winner)
 
             else:
                 print("I am going to decide which human is the most funny !")
@@ -100,7 +109,9 @@ class Game():
                 # Put Tsar's choice in the choices and sent to players
                 self.choices[self.tsar] = self.choices[winner]
                 print("I found sentence {} the most funny !".format(votes[winner-1]))
-                self.configure_new_round(winner)
+                # Wait until every player gets the choices (AI player does not need to be ready)
+                if sum(list(self.checkpoints.values())) == len(list(self.score.keys()))-1:
+                    self.configure_new_round(winner)
 
     def wait_for_human_vote(self, copy):
         # Look at the vote from the Tsar
@@ -133,11 +144,14 @@ class Game():
         self.score[winner] += 1
         # Reset AI player voting status
         self.ai_player.voted = False
+        # Reset checkpoints
+        self.checkpoints = self.reset_checkpoints()
 
     def update_score(self):
         for player_id in list(self.choices.keys()):
             if player_id not in list(self.score.keys()):
                 self.score[player_id] = 0
+                self.checkpoints[player_id] = 0
         return self.score
 
 

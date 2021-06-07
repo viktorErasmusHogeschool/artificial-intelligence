@@ -7,7 +7,7 @@ import pandas as pd
 from . import Generator
 
 
-def gen_image(text: str) -> None:
+def gen_image(text: str) -> bool:
     # check if phrase has a model attached to it
     df = pd.read_json("./data/cah-cards-full.json")
     phrase_row = df[df['text'] == text]
@@ -15,6 +15,7 @@ def gen_image(text: str) -> None:
 
     if PATH == 'not_available':
         print("No model associated to card: {}".format(text))
+        return False
 
     else:
         # load model from path
@@ -34,3 +35,5 @@ def gen_image(text: str) -> None:
 
         except Exception as e:
             print("Received '{}' but no associated GAN was found in Models. Raised exception: {}".format(text, e))
+
+        return True

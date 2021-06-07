@@ -1,3 +1,4 @@
+import pandas as pd
 import numpy as np
 import pickle
 
@@ -9,7 +10,6 @@ def threaded_game_(game):
         else:
             pass
 
-
 def threaded_client(conn, player_id, game):
     # Send initial sample to player
     conn.send(pickle.dumps({player_id: [game.cards[player_id], game.black_card]}))
@@ -20,7 +20,15 @@ def threaded_client(conn, player_id, game):
                 conn.send(str.encode("Goodbye"))
                 break
             else:
-                game.update_choices(data)
+                # Check for card submission
+                if isinstance(data, dict):
+                    game.update_choices(data)
+                # Flag to begin new round
+                elif isinstance(data, str):
+                    game.checkpoints[player_id] = 1
+                    print("Received {} from Player {}".format(data, player_id))
+
+                # Return game status in any case
                 reply = [game.players_status(), game.update_score(), game.tsar, game.cards[player_id], game.black_card, game.choices]
             
             conn.sendall(pickle.dumps(reply))
