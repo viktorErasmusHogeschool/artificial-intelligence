@@ -22,7 +22,7 @@ def gen_image(text: str) -> bool:
         nz = 100
 
         try:
-            state = torch.load("./data/Models/"+PATH)
+            state = torch.load(PATH)
             netG = Generator(0).to("cpu")
             netG.load_state_dict(state['model_state_dict'])
 
