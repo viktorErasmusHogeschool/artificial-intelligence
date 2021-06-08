@@ -1,6 +1,4 @@
-![test](./cah/cah_logo.jpg) 
-
-#Cards Against Humanity
+# Cards Against Humanity ![test](./cah/cah_logo.jpg)
 
 ## Purpose of this repo
 
