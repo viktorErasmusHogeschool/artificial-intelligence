@@ -28,6 +28,7 @@ share/python-wheels/
 MANIFEST
 ./cah/win.mp3
 ./cah/gan.jpg
+./cah/cah_logo.jpg
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

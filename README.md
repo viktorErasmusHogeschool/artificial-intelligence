@@ -1,4 +1,6 @@
-# Intelligent interfaces
+![test](./cah/cah_logo.jpg) 
+
+#Cards Against Humanity
 
 ## Purpose of this repo
 

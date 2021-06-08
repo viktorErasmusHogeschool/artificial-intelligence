@@ -33,6 +33,7 @@ class Game:
         self.image = None
         self.table = {}
         self.show_img = False
+        self.logo = pygame.transform.scale(pygame.image.load(r'cah_logo.jpg'), (180, 180))
 
     def run(self):
 
@@ -163,6 +164,7 @@ class Game:
             self.canvas.screen.blit(self.font.render("Player {}".format(player), True, (0, 0, 0)), (delta * idx, 10))
             self.canvas.screen.blit(self.font.render(_, True, (0, 0, 0)), (delta * idx, 50))
             self.canvas.screen.blit(self.font.render(str(self.score[player]), True, (0, 0, 0)), (delta * idx + 40, 90))
+            self.canvas.screen.blit(self.logo, (150, 120))
             idx += 1
             # Display picture as of 2nd round
             if self.show_img:
