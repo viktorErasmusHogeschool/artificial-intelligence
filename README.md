@@ -11,14 +11,14 @@ This project is based on the principles of the game “Cards against humanity”
 adult party game where players complete fill-in-the-blank statements with dark humour words or sentences
 that are typically deemed defiant and politically incorrect. The goal in CAH is to fill-in the statements
 of the black cards with words or sentences of the white cards. During each round, one of the players,
-designated as the “Card Tsar”,  plays a black card that the other players fill-in using one of their
+designated as the “Card Tsar”,  draws a black card that the other players fill-in using one of their
 white cards. The Card Tsar then shuffles the played white cards and chooses the funniest one. The player
 to whom this white card belongs then earns a point and becomes the Card Tsar for the next round. The
-player that earned the highest number of points after the last round wins the game. It is played among
-3 to 20+ players and the card deck comprises around 600 white cards and 100 black cards.
+player that earned the highest number of points after the last round wins the game. It is played amongst
+3 to 20+ players and the card deck comprises of around 600 white cards and 100 black cards.
 
 This package implements an intelligent system that is capable of:
-* Filling-in the statement of a black card using his own white cards (using the BERT API);
+* Filling-in the statement of a black card using the white cards assigned to it (using the BERT API);
 * Choosing the funniest card among the collection of cards played by humans (again using BERT);
 * Drawing a scene that represents the winner's white card at each round (using GANs).
 
@@ -66,8 +66,8 @@ The CAH module within this repository is made of the following submodules:
 
 1) **cah**
    
-   This module contains the heart of our code. It ensures the correct behaviour of a game as well as
-   a connection to our remote **Linode server**. It is made of the following sub-elements:
+   This module contains the heart of our code. It ensures the correct behaviour of the game as well as
+   the connection to our remote **Linode server**. It is made of the following sub-elements:
    - Game: Creates the game and communicates to other users via the remote Linode server;
    - Network: Ensures the communication between the game instance and the server (send & receive data);
    - Player: Creates an instance with a dedicated card deck that can be selected in each round;
@@ -95,7 +95,7 @@ The CAH module within this repository is made of the following submodules:
 4) **python-server**
 
     The code of this directory is just a reproduction of the code on the server-side. While not being used directly on
-    the player's side, it allow to illustrate how the two parties communicate. In particular, the server works as follows:
+    the player's side, it allows to illustrate how the two parties communicate. In particular, the server works as follows:
     - A global game instance is created on the server side;
     - An artificial player is automatically added to the game;
     - Players can connect to this server using sockets;
